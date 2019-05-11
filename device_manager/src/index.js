@@ -5,6 +5,11 @@ const port = 3000;
 
 const devicesRoute = require('./routes/devices.route');
 const productsRoute = require('./routes/products.route');
+const { refreshProducts } = require('./controller/products.controller');
+
+setInterval(() => {
+    refreshProducts()
+}, 10000);
 
 
 app.use(bodyParser.json());

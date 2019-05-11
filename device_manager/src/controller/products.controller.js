@@ -1,5 +1,7 @@
+const { badProductAlarm } = require('./message.controller');
+
 //2 Minutes
-const MAX_AGE = 2 * 60 * 1000;
+const MAX_AGE = 1 * 10 * 1000;
 
 let productsDB = {};
 
@@ -17,6 +19,21 @@ const isFresh = (product) => {
     return diff < MAX_AGE;
 };
 
+const refreshProducts = () => {
+    const notFresh = Object.values(productsDB).filter(el => !isFresh(el));
+    console.log(`Bad products:`);
+    console.log(notFresh);
+
+    notFresh.forEach(badProductAlarm);
+
+    productsDB = {
+        ...toDB(Object.values(productsDB).filter(isFresh))
+    };
+
+    console.log(`Products updated!`);
+};
+
+
 const updateProducts = (newProducts) => {
     const products = newProducts
         .map(name => ({
@@ -31,13 +48,12 @@ const updateProducts = (newProducts) => {
 };
 
 const getProducts = () => {
-    productsDB = {
-        ...toDB(Object.values(productsDB).filter(isFresh))
-    };
+    refreshProducts();
     return productsDB;
 };
 
 module.exports = {
     updateProducts,
-    getProducts
+    getProducts,
+    refreshProducts
 };

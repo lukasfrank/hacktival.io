@@ -16,120 +16,103 @@ import "@babel/polyfill";
 import * as mobilenetModule from '@tensorflow-models/mobilenet';
 import * as tf from '@tensorflow/tfjs';
 import * as knnClassifier from '@tensorflow-models/knn-classifier';
+import * as _ from "lodash";
 
 // Webcam Image size. Must be 227. 
 const IMAGE_SIZE = 227;
 
 // K value for KNN
 const TOPK = 10;
+let knn = null;
+let mobilenet = null;
 
+const labels = [];
 
-class Main {
-  constructor() {
-    // Initiate variables
-    this.training = -1; // -1 when no class is being trained
-    this.videoPlaying = false;
-    this.imageWidth = 0;
-    this.imageHeight = 0;
-
-    // window.setTimeout(() => {this.videoPlaying = true}, 3000);
-
-    // Initiate deeplearn.js math and knn classifier objects
-    this.bindPage();
-
-    // Add video element to DOM
-    document.body.appendChild(this.video);
-
-    // setup download the current state
-    const dlbutton = document.createElement('button')
-    dlbutton.innerText = "Create classifier download link";
-    dlbutton.addEventListener('click', () => {
-      this.downloadClassifier()
-    });
-    document.body.appendChild(dlbutton);
-  }
-
-  async bindPage() {
-    this.knn = knnClassifier.create();
-    this.mobilenet = await mobilenetModule.load();
+async function start() {
+  if (!await mobilenet) {
+    knn = knnClassifier.create();
+    mobilenet = mobilenetModule.load();
+    mobilenet = await mobilenet;
     console.log("Loaded mobilnet");
-
-    this.start();
-  }
-
-  start() {
-    if (this.timer) {
-      this.stop();
-    }
-    this.timer = requestAnimationFrame(this.animate.bind(this));
-  }
-
-  stop() {
-    cancelAnimationFrame(this.timer);
-  }
-
-  async animate() {
-    if (this.videoPlaying) {
-      // Get image data from video element
-      const image = tf.fromPixels(this.video);
-
-      let logits;
-      // 'conv_preds' is the logits activation of MobileNet.
-      const infer = () => this.mobilenet.infer(image, 'conv_preds');
-
-      // Train class if one of the buttons is held down
-      if (this.training != -1) {
-        logits = infer();
-
-        // Add current image to classifier
-        this.knn.addExample(logits, this.training)
-      }
-
-      const numClasses = this.knn.getNumClasses();
-      if (numClasses > 0) {
-
-        // If classes have been added run predict
-        logits = infer();
-        const res = await this.knn.predictClass(logits, TOPK);
-
-        for (let i = 0; i < NUM_CLASSES; i++) {
-
-          // The number of examples for each class
-          const exampleCount = this.knn.getClassExampleCount();
-
-          // Make the predicted class bold
-          if (res.classIndex == i) {
-            this.infoTexts[i].style.fontWeight = 'bold';
-          } else {
-            this.infoTexts[i].style.fontWeight = 'normal';
-          }
-
-          // Update info text
-          if (exampleCount[i] > 0) {
-            this.infoTexts[i].innerText = ` ${exampleCount[i]} examples - ${res.confidences[i] * 100}%`
-          }
-        }
-      }
-
-      // Dispose image when done
-      image.dispose();
-      if (logits != null) {
-        logits.dispose();
-      }
-    }
-
-    this.timer = requestAnimationFrame(this.animate.bind(this));
-  }
-
-  downloadClassifier() {
-    const state = this.knn.getClassifierDataset();
-    var data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-    const link = document.createElement('a');
-    link.href = "data:' + data + '";
-    link.download = "model.json";
-    link.text = "dowload";
-    document.body.append(link);
   }
 }
 
-window.addEventListener('load', () => new Main());
+function getInsertLabelIndex(label) {
+  const index = labels.findIndex((str) => str === label);
+  if (index == -1) {
+    labels.push(label);
+    return labels.length - 1;
+  } else {
+    return index;
+  }
+}
+
+/**
+ *
+ *
+ * @param {*} imageSource the image
+ * @param {string} label if != "" train  the classifier with this label
+ */
+async function infer(imageSource, label = "") {
+  let result = '';
+  // Get image data from video element
+  const image = tf.fromPixels(imageSource);
+
+  let logits;
+  // 'conv_preds' is the logits activation of MobileNet.
+  const infer = () => mobilenet.infer(image, 'conv_preds');
+
+  
+  // Train class if one of the buttons is held down
+  if (label) {
+    console.log("training");
+    logits = infer();
+    const index = getInsertLabelIndex(label);
+
+    // Add current image to classifier
+    knn.addExample(logits, index);
+  }
+
+  const numClasses = knn.getNumClasses();
+  if (numClasses > 0) {
+
+    // If classes have been added run predict
+    logits = infer();
+    const res = await knn.predictClass(logits, TOPK);
+
+    // console.log(res);
+
+    result = labels[res.classIndex];
+  }
+
+  // Dispose image when done
+  image.dispose();
+  if (logits != null) {
+    logits.dispose();
+  }
+
+  return result;
+}
+
+function getLabelsWithCount() {
+  return _.zip(labels, knn.getClassExampleCount());
+}
+
+
+function downloadClassifier() {
+  const state = knn.getClassifierDataset();
+  const data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+  const link = document.createElement('a');
+  link.href = "data:' + data + '";
+  link.download = "model.json";
+  link.text = "dowload";
+  document.body.append(link);
+}
+
+export {
+  labels,
+  downloadClassifier,
+  infer,
+  start,
+  getLabelsWithCount,
+}

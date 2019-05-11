@@ -95,7 +95,11 @@ async function infer(imageSource, label = "") {
 }
 
 function getLabelsWithCount() {
-  return _.zip(labels, knn.getClassExampleCount());
+  const counts = knn.getClassExampleCount();
+  return _.map(labels, (label, key) => ({
+    label,
+    count: counts[key]
+  }));
 }
 
 

@@ -258,3 +258,4 @@ dmypy.json
 .pyre/
 
 # End of https://www.gitignore.io/api/node,linux,macos,python
+rtsp_image_downloader/data

@@ -1,4 +1,4 @@
-const axios = require('axios');
+const axios = require('axios/index');
 
 const setLight = (url, status) => {
     const endpoint =  status === 'on' ? 'enabletorch' : 'disabletorch';
@@ -7,7 +7,7 @@ const setLight = (url, status) => {
         .then(() => {
             console.log(`Device: ${url} : ${status}`);
         })
-        .catch((e) => {
+        .catch(() => {
             console.log(`Device: ${url} not reachable`);
         });
 };

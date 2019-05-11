@@ -3,7 +3,7 @@ const router = express.Router();
 
 const { setLight } = require('../controller/devices.controller');
 
-const devices = require('../devices').devices;
+const devices = require('../../devices').devices;
 
 router.post('/devices', (req, res) => {
     const light = req.body.light ? req.body.light : "off";

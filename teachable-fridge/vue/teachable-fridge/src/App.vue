@@ -1,5 +1,10 @@
 <template>
   <div class="fridgecam">
+
+    <button class="torch-btn" v-on:click="setLight(true)">🔦 on</button>
+    <button class="torch-btn" v-on:click="setLight(false)">🔦 off</button>
+    <br>
+
     <img v-bind:class="imageClass" alt="Fridgcam is loading..." src="http://192.168.172.97:8080/video" crossorigin="anonymous" ref="fridgeImage"
       onload="this."
     >
@@ -29,7 +34,7 @@
 </template>
 
 <script>
-import {getClippedRegion} from './image-clip'; 
+import {getClippedRegion} from './image-clip';
 
 export default {
   name: 'Fridgecam',
@@ -49,6 +54,17 @@ export default {
     this.$refs.fridgeImage.onload = this.imageLoaded;
   },
   methods: {
+    setLight: function(status) {
+      fetch('http://localhost:3000/devices', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          "light": status ? 'on': 'off'
+        }),
+      });
+    },
     imageLoaded: function() {
       this.imageWidth = this.$refs.fridgeImage.width;
       this.imageHeight = this.$refs.fridgeImage.height;
@@ -86,5 +102,8 @@ div.image-train-card {
   display: inline-block;
   margin-right: 3px;
   text-align: center;
+}
+.torch-btn {
+  font-size: 30px;
 }
 </style>

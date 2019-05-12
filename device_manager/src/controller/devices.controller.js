@@ -12,12 +12,13 @@ const setLight = (url, status) => {
         });
 };
 
-const getPhoto = (url, status) => {
+const getPhoto = (url) => {
     const endpoint =  'photo.jpg';
 
-    axios.get(url.concat('/', endpoint))
+    return axios.get(url.concat('/', endpoint))
         .then((data) => {
-            console.log(`Device: ${url} : ${status}`);
+            console.log(`Device: ${url} : ${data}`);
+            return data;
         })
         .catch(() => {
             console.log(`Device: ${url} not reachable`);
@@ -25,5 +26,6 @@ const getPhoto = (url, status) => {
 };
 
 module.exports = {
-    setLight
+    setLight,
+    getPhoto
 };

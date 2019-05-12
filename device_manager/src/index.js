@@ -11,7 +11,7 @@ const { init } = require('./controller/message.controller');
 init();
 setInterval(() => {
     refreshProducts()
-}, 10000);
+}, 50000);
 
 
 app.use(bodyParser.json());

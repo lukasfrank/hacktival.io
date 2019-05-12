@@ -36,7 +36,8 @@ const updateProducts = (newProducts) => {
     const products = newProducts
         .map(name => ({
             name,
-            date: Date.now()
+            first_seen: Date.now(),
+            updated: Date.now()
         }));
 
     productsDB = {...toDB(products), ...productsDB, };

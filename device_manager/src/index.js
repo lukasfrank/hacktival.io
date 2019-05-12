@@ -6,11 +6,14 @@ const port = 3000;
 const devicesRoute = require('./routes/devices.route');
 const productsRoute = require('./routes/products.route');
 const { refreshProducts } = require('./controller/products.controller');
+const { badProductAlarm } = require('./controller/message.controller');
+
 const { init } = require('./controller/message.controller');
 
 init();
 setInterval(() => {
-    refreshProducts()
+    const badProducts = refreshProducts();
+    badProducts.forEach(badProductAlarm)
 }, 50000);
 
 

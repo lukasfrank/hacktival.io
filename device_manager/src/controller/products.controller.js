@@ -1,5 +1,3 @@
-const { badProductAlarm } = require('./message.controller');
-
 //2 Minutes
 const MAX_AGE = 1 * 10 * 1000;
 
@@ -24,13 +22,13 @@ const refreshProducts = () => {
     console.log(`Bad products:`);
     console.log(notFresh);
 
-    notFresh.forEach(badProductAlarm);
-
     productsDB = {
         ...toDB(Object.values(productsDB).filter(isFresh))
     };
 
     console.log(`Products updated!`);
+
+    return notFresh;
 };
 
 
@@ -41,7 +39,7 @@ const updateProducts = (newProducts) => {
             date: Date.now()
         }));
 
-    productsDB = {...productsDB, ...toDB(products)};
+    productsDB = {...toDB(products), ...productsDB, };
 
     console.log('New state');
     console.log(productsDB);

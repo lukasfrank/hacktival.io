@@ -14,12 +14,22 @@ socket.on('bad-product-alarm', function(data){
 
 socket.on('new-photo', function(data){
     console.log(data);
-    usr.replyWithPhoto(data);
+    if (usr) {
+        usr.replyWithPhoto(data);
+    }
 });
 
 socket.on('products', function(data){
     console.log(data);
-    usr.reply(data);
+
+    const msg = data.length === 0 ? 'Your fridge is empty' :
+        (
+          'That is in your fridge:\n' +
+              data.map(el => el.name+"\n")
+        );
+    if (usr) {
+        usr.replyWithMarkdown(msg);
+    }
 });
 
 socket.on('disconnect', console.log);

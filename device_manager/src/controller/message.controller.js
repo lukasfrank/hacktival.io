@@ -4,8 +4,22 @@ io.on('connection', client => {
     console.log(`client: ${client.toString()}`)
 });
 
-io.listen(3001);
+io.on('*', command => {
+    console.log(command)
+    console.log('b')
+});
 
+io.on('take-photo', command => {
+    console.log(command)
+    console.log('a')
+});
+
+
+
+
+const init = () => {
+    io.listen(3001);
+};
 
 const badProductAlarm = (product) => {
     io.emit('bad-product-alarm', `Your ${product.name} will get bad soon!`);
@@ -14,5 +28,6 @@ const badProductAlarm = (product) => {
 
 
 module.exports = {
+    init,
     badProductAlarm,
 };

@@ -12,6 +12,18 @@ const setLight = (url, status) => {
         });
 };
 
+const getPhoto = (url, status) => {
+    const endpoint =  'photo.jpg';
+
+    axios.get(url.concat('/', endpoint))
+        .then((data) => {
+            console.log(`Device: ${url} : ${status}`);
+        })
+        .catch(() => {
+            console.log(`Device: ${url} not reachable`);
+        });
+};
+
 module.exports = {
     setLight
 };

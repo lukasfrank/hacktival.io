@@ -1,5 +1,5 @@
 const Telegraf = require('telegraf');
-const socket = require('socket.io-client')('http://localhost:3001', {path: '/socket.io'});
+const socket = require('socket.io-client')('http://localhost:3001');
 const bot = new Telegraf(process.env.BOT_TOKEN);
 
 let usr;

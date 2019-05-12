@@ -11,6 +11,12 @@ socket.on('bad-product-alarm', function(data){
     console.log(data);
     usr.reply(data)
 });
+
+socket.on('new-photo', function(data){
+    console.log(data);
+    usr.replyWithPhoto(data);
+});
+
 socket.on('disconnect', console.log);
 
 bot.start((ctx) => {

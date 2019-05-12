@@ -100,6 +100,7 @@ const UNKNOWN_LABEL = "???";
 const PREDEFINED_LABELS = [
   ""
 ];
+const SPOILED_AFTER = 10 * 1000;
 
 export default {
   name: 'Fridgecam',
@@ -160,8 +161,13 @@ export default {
         var date = new Date(start*1);
         const now = Date.now();
         const difference = now - date;
-        const dateDiff = new Date(difference);
-        return `${dateDiff.getUTCHours()} h ${dateDiff.getUTCMinutes()} m ${dateDiff.getUTCSeconds()} s`;
+        console.log(difference);
+
+        if (difference > SPOILED_AFTER) {
+          return "bad";
+        } else {
+          return "good";
+        }
       }
       return '';
     },

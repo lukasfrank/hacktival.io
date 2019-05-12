@@ -9,7 +9,16 @@
           <button class="torch-btn" v-on:click="setLight(false)">🔦 off</button>
         </v-flex>  
         <v-divider vertical />
-        <v-flex xs9 pa-3 />
+        <v-flex xs9 pa-3>
+          <v-select
+            v-model="fridgeSrc"
+            :items="devices"
+            label="Select device"
+            item-text="name"
+            item-value="url"
+            solo
+          ></v-select>
+        </v-flex>
         <v-flex xs2 pa-3 class="torch-btn" >
           Model: {{ modelLoaded ? "✔️" : "❌" }}
         </v-flex>
@@ -17,7 +26,7 @@
     </v-toolbar>
     <v-content class="text-xs-center">
       <div class="fridgecam">
-        <img v-bind:class="imageClass" alt="Fridgcam is loading..." src="http://192.168.172.97:8080/video" crossorigin="anonymous" ref="fridgeImage"
+        <img v-bind:class="imageClass" alt="Fridgcam is loading..." :src="fridgeSrc" crossorigin="anonymous" ref="fridgeImage"
         >
         <br>
 
@@ -106,8 +115,11 @@ export default {
     modelLoaded: false,
     train: -1,
     trainedLabels: [],
+    devices: [],
+    fridgeSrc: '',
   }),
   created: async function() {
+    this.getDevices();
     await classifier.start();
     this.modelLoaded = true;
   },
@@ -141,6 +153,12 @@ export default {
           "light": status ? 'on': 'off'
         }),
       });
+    },
+    getDevices: async function() {
+      const response = await fetch('http://localhost:3000/devices', {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+      });
+      this.devices = await response.json();
     },
     imageLoaded: function() {
       this.imageWidth = this.$refs.fridgeImage.width;

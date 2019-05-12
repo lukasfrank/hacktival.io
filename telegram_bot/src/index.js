@@ -13,18 +13,13 @@ socket.on('bad-product-alarm', function(data){
 });
 socket.on('disconnect', console.log);
 
-setInterval(() => {
-    console.log('take-photo');
-    socket.emit('take-photo', 'photo');
-}, 1000);
-
 bot.start((ctx) => {
     usr = ctx;
     ctx.reply('Welcome to your smart fridge!')
 });
 bot.help((ctx) => ctx.reply('Send me a sticker'));
 bot.command('photo', (ctx) => {
-    socket.emit('command', 'photo');
+    socket.emit('take-photo');
     ctx.reply('One moment please, I will take a photo of your fridge.')
 });
 bot.on('sticker', (ctx) => ctx.reply('👍'));

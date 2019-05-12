@@ -1,18 +1,18 @@
 const io = require('socket.io')();
+const { getPhoto } = require('./devices.controller');
+const devices = require('../../config').devices;
 
 io.on('connection', client => {
-    console.log(`client: ${client.toString()}`)
+    console.log(`client: ${client.toString()}`);
+
+    client.on('take-photo', () => {
+        console.log("take-photo");
+        getPhoto(devices[0].url);
+    });
+
 });
 
-io.on('*', command => {
-    console.log(command)
-    console.log('b')
-});
 
-io.on('take-photo', command => {
-    console.log(command)
-    console.log('a')
-});
 
 
 

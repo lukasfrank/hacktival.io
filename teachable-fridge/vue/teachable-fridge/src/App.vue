@@ -35,7 +35,7 @@
           <v-flex xs2 pa-3>
             <v-card class="text-xs-center">
               <v-card-title primary-title>
-                <h3 class="headline ml-3">{{ clsLabel1 | filterLabel }}: {{freshState(clsLabel1)}}</h3>
+                <h3 class="headline ml-3" :class="freshState(clsLabel1)">{{ clsLabel1 | filterLabel }}: {{freshState(clsLabel1)}}</h3>
               </v-card-title>
               <img class="image-crop" :src="imageCrop1" ref="img1" />
               <br>
@@ -44,7 +44,7 @@
           </v-flex>
           <v-flex xs2 pa-3>
             <v-card>
-              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel2 | filterLabel }}: {{freshState(clsLabel2)}}</h3>
+              <v-card-title primary-title :class="freshState(clsLabel2)"><h3 class="headline ml-3">{{ clsLabel2 | filterLabel }}: {{freshState(clsLabel2)}}</h3>
               </v-card-title>
               <img class="image-crop" :src="imageCrop2" ref="img2" />
               <br>
@@ -53,7 +53,7 @@
           </v-flex>
           <v-flex xs2 pa-3>
             <v-card>
-              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel3 | filterLabel }}: {{freshState(clsLabel3)}}</h3>
+              <v-card-title primary-title :class="freshState(clsLabel3)"><h3 class="headline ml-3">{{ clsLabel3 | filterLabel }}: {{freshState(clsLabel3)}}</h3>
               </v-card-title>
               <img class="image-crop" :src="imageCrop3" ref="img3" />
               <br>
@@ -62,7 +62,7 @@
           </v-flex>
         <v-flex xs2 pa-3>
           <v-card>
-            <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel4 | filterLabel }}: {{freshState(clsLabel4)}}</h3>
+            <v-card-title primary-title :class="freshState(clsLabel4)"><h3 class="headline ml-3">{{ clsLabel4 | filterLabel }}: {{freshState(clsLabel4)}}</h3>
             </v-card-title>
             <img class="image-crop" :src="imageCrop4" ref="img4" />
             <br>
@@ -78,7 +78,7 @@
               </li>
             </ul>
             <v-btn v-on:click="saveModel">Save model</v-btn>
-            <v-btn v-on:click="restoreModel">Restore model model</v-btn>
+            <v-btn v-on:click="restoreModel">Restore model</v-btn>
             <v-btn v-on:click="downloadModel">Dowload model</v-btn>
             <br>
             Upload model:
@@ -293,5 +293,11 @@ div.image-train-card {
 }
 div.left {
   text-align: left;
+}
+.good {
+  color: darkgreen;
+}
+.bad {
+  color: darkred;
 }
 </style>

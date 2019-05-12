@@ -63,6 +63,7 @@
               <b>{{ item.label }}</b>: {{ item.count }}
               </li>
             </ul>
+            <v-btn v-on:click="downloadModel">Dowload model</v-btn>
           </v-card>
         </v-flex>
       </v-layout>
@@ -77,6 +78,9 @@ import {getClippedRegion} from './image-clip';
 import * as classifier from './classifier';
 
 const UNKNOWN_LABEL = "???";
+const PREDEFINED_LABELS = [
+  ""
+];
 
 export default {
   name: 'Fridgecam',
@@ -167,6 +171,9 @@ export default {
       }
       this.timer = window.setTimeout(this.handleImage.bind(this), 300);
       // this.timer = requestAnimationFrame(this.handleImage.bind(this));
+    },
+    downloadModel: function() {
+      classifier.downloadClassifier();
     }
   }
 }

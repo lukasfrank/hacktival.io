@@ -7,15 +7,16 @@ io.on('connection', client => {
 
     client.on('take-photo', () => {
         console.log("take-photo");
-        getPhoto(devices[0].url);
+        devices.forEach(device => {
+            getPhoto(device.url).then(data => {
+                const { url } = data;
+                sendPhoto(url)
+            });
+        })
+
     });
 
 });
-
-
-
-
-
 
 const init = () => {
     io.listen(3001);
@@ -25,6 +26,9 @@ const badProductAlarm = (product) => {
     io.emit('bad-product-alarm', `Your ${product.name} will get bad soon!`);
 };
 
+const sendPhoto = (url) => {
+    io.emit('new-photo', url);
+};
 
 
 module.exports = {

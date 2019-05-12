@@ -72,7 +72,12 @@
               <b>{{ item.label }}</b>: {{ item.count }}
               </li>
             </ul>
+            <v-btn v-on:click="saveModel">Save model</v-btn>
+            <v-btn v-on:click="restoreModel">Restore model model</v-btn>
             <v-btn v-on:click="downloadModel">Dowload model</v-btn>
+            <br>
+            Upload model:
+            <input type="file" id="files" ref="fileUpload" name="file" />
           </v-card>
         </v-flex>
       </v-layout>
@@ -130,6 +135,8 @@ export default {
   },
   mounted: function() {
     this.$refs.fridgeImage.onload = this.imageLoaded;
+
+    this.$refs.fileUpload.addEventListener('change', this.uploadModel, false);
   },
   computed: {
     sortedLabels: function() {
@@ -192,6 +199,25 @@ export default {
     },
     downloadModel: function() {
       classifier.downloadClassifier();
+    },
+    uploadModel: function(e) {
+      var file = e.target.files[0];
+      if (!file) {
+        return;
+      }
+      var reader = new FileReader();
+      reader.onload = function(e) {
+        var contents = e.target.result;
+        const parsed = JSON.parse(contents);
+        classifier.importClassifier(parsed);
+      };
+      reader.readAsText(file);
+    },
+    saveModel: function() {
+      classifier.saveClassifierToLocalStorage();
+    },
+    restoreModel: function() {
+      classifier.loadClassifierFromLocalStorage();
     }
   }
 }

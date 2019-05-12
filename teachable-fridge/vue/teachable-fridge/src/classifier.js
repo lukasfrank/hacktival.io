@@ -102,12 +102,37 @@ function getLabelsWithCount() {
   }));
 }
 
+function exportClassifier() {
+  const dataset = knn.getClassifierDataset();
+  var datasetObj = {}
+  Object.keys(dataset).forEach((key) => {
+    let data = dataset[key].dataSync();
+    // use Array.from() so when JSON.stringify() it covert to an array string e.g [0.1,-0.2...] 
+    // instead of object e.g {0:"0.1", 1:"-0.2"...}
+    datasetObj[key] = Array.from(data);
+  });
 
-function downloadClassifier() {
   const state = {
-    classifier: knn.getClassifierDataset(),
+    dataset: datasetObj,
     labels,
   }
+
+  return state;
+}
+
+function saveClassifierToLocalStorage() {
+  const state = exportClassifier();
+  localStorage.setItem("model", JSON.stringify(state));
+}
+
+function loadClassifierFromLocalStorage() {
+  const state = JSON.parse(localStorage.getItem("model"));
+  importClassifier(state);
+}
+
+function downloadClassifier() {
+  const state = exportClassifier();
+
   var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
   var dlAnchorElem = document.createElement('a');
   dlAnchorElem.setAttribute("href", dataStr);
@@ -117,7 +142,12 @@ function downloadClassifier() {
 
 function importClassifier(state) {
   labels = state.labels;
-  knn.setClassifierDataset(state.classifier);
+  const tensorObj = state.dataset;
+
+  Object.keys(tensorObj).forEach((key) => {
+    tensorObj[key] = tf.tensor(tensorObj[key], [tensorObj[key].length / 1000, 1000])
+  })
+  knn.setClassifierDataset(tensorObj);
 }
 
 export {
@@ -126,4 +156,7 @@ export {
   infer,
   start,
   getLabelsWithCount,
+  importClassifier,
+  saveClassifierToLocalStorage,
+  loadClassifierFromLocalStorage,
 }

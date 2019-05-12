@@ -1,49 +1,78 @@
 <template>
-  <div class="fridgecam">
+  <v-app>
+    <v-toolbar app>
+      <v-layout>
+        <v-flex xs1 pa-3>
+          <button class="torch-btn" v-on:click="setLight(true)">🔦 on</button>
+        </v-flex>  
+        <v-flex xs1 pa-3>
+          <button class="torch-btn" v-on:click="setLight(false)">🔦 off</button>
+        </v-flex>  
+        <v-divider vertical />
+        <v-flex xs9 pa-3 />
+        <v-flex xs2 pa-3 class="torch-btn" >
+          Model: {{ modelLoaded ? "✔️" : "❌" }}
+        </v-flex>
+      </v-layout>     
+    </v-toolbar>
+    <v-content class="text-xs-center">
+      <div class="fridgecam">
+        <img v-bind:class="imageClass" alt="Fridgcam is loading..." src="http://192.168.172.97:8080/video" crossorigin="anonymous" ref="fridgeImage"
+        >
+        <br>
 
-    Model status: {{ modelLoaded ? "✔️" : "❌" }}
-    <br>
-    <button class="torch-btn" v-on:click="setLight(true)">🔦 on</button>
-    <button class="torch-btn" v-on:click="setLight(false)">🔦 off</button>
-    <br>
-
-    <img v-bind:class="imageClass" alt="Fridgcam is loading..." src="http://192.168.172.97:8080/video" crossorigin="anonymous" ref="fridgeImage"
-      onload="this."
-    >
-    <br>
-
-    <div class="image-train-card">
-      <img class="image-crop" :src="imageCrop1" ref="img1" />
-      <br>
-      {{ clsLabel1 }}
-      <br>
-      <input type="text" placeholder="New Class" v-model="label1"/><button v-on:mousedown="train = 1" v-on:mouseup="resetTrain" :disabled="label1 == ''">Train</button>
-    </div>
-    <div class="image-train-card">
-      <img class="image-crop" :src="imageCrop2" ref="img2" />
-      <br>
-      {{ clsLabel2 }}
-      <br>
-      <input type="text" placeholder="New Class" v-model="label2"/><button v-on:mousedown="train = 2" v-on:mouseup="resetTrain" :disabled="label2 == ''">Train</button>
-    </div>
-    <div class="image-train-card">
-      <img class="image-crop" :src="imageCrop3" ref="img3" />
-      <br>
-      {{ clsLabel3 }}
-      <br>
-      <input type="text" placeholder="New Class" v-model="label3" /><button v-on:mousedown="train = 3"  v-on:mouseup="resetTrain" :disabled="label3 == ''">Train</button>
-    </div>
-    <div class="image-train-card">
-      <img class="image-crop" :src="imageCrop4" ref="img4" />
-      <br>
-      {{ clsLabel4 }}
-      <br>
-      <input type="text" placeholder="New Class" v-model="label4"/><button v-on:mousedown="train = 4" v-on:mouseup="resetTrain" :disabled="label4 == ''">Train</button>
-    </div>
-  </div>
+        <v-layout>
+          <v-flex xs1 pa-3 />  
+          <v-flex xs2 pa-3>
+            <v-card class="text-xs-center">
+              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel1 | filterLabel }}</h3></v-card-title>
+              <img class="image-crop" :src="imageCrop1" ref="img1" />
+              <br>
+              <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label1"/><v-btn v-on:mousedown="train = 1" v-on:mouseup="resetTrain" :disabled="label1 == ''">🔬 Train</v-btn>
+            </v-card>
+          </v-flex>
+          <v-flex xs2 pa-3>
+            <v-card>
+              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel2 | filterLabel }}</h3></v-card-title>
+              <img class="image-crop" :src="imageCrop2" ref="img2" />
+              <br>
+              <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label2"/><v-btn v-on:mousedown="train = 2" v-on:mouseup="resetTrain" :disabled="label2 == ''">🔬 Train</v-btn>
+            </v-card>
+          </v-flex>
+          <v-flex xs2 pa-3>
+            <v-card>
+              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel3 | filterLabel }}</h3></v-card-title>
+              <img class="image-crop" :src="imageCrop3" ref="img3" />
+              <br>
+              <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label3"/><v-btn v-on:mousedown="train = 3" v-on:mouseup="resetTrain" :disabled="label3 == ''">🔬 Train</v-btn>
+            </v-card>
+          </v-flex>
+        <v-flex xs2 pa-3>
+          <v-card>
+            <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel4 | filterLabel }}</h3></v-card-title>
+            <img class="image-crop" :src="imageCrop4" ref="img4" />
+            <br>
+              <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label4"/><v-btn v-on:mousedown="train = 4" v-on:mouseup="resetTrain" :disabled="label4 == ''">🔬 Train</v-btn>
+          </v-card>
+        </v-flex>
+        <v-flex xs2 pa-3>
+          <v-card>
+            <v-card-title primary-title><h3 class="headline ml-3">Trained labels:</h3></v-card-title>
+            <ul class="text-xs-left">
+              <li v-for="item in sortedLabels" :key="item.label">
+              <b>{{ item.label }}</b>: {{ item.count }}
+              </li>
+            </ul>
+          </v-card>
+        </v-flex>
+      </v-layout>
+      </div>
+    </v-content> 
+  </v-app> 
 </template>
 
 <script>
+import * as _ from 'lodash';
 import {getClippedRegion} from './image-clip';
 import * as classifier from './classifier';
 
@@ -78,13 +107,25 @@ export default {
     await classifier.start();
     this.modelLoaded = true;
   },
+  filters: {
+    filterLabel: function(text) {
+      return text ? text : '???';
+    }
+  },
   mounted: function() {
     this.$refs.fridgeImage.onload = this.imageLoaded;
+  },
+  computed: {
+    sortedLabels: function() {
+      return _(this.trainedLabels).sortBy('count').reverse().value();
+    },
+    labelNames: function() {
+      return this.trainedLabels.map(label => label.label);
+    }
   },
   methods: {
     resetTrain: function() {
       this.train = -1;
-      this.trainedLabels = classifier.getLabelsWithCount();
     },
     setLight: function(status) {
       fetch('http://localhost:3000/devices', {
@@ -120,11 +161,12 @@ export default {
         const prom4 = classifier.infer(this.$refs.img4, this.train == 4 ? this.label4 : "");
 
         [this.clsLabel1, this.clsLabel2, this.clsLabel3, this.clsLabel4] = await Promise.all([prom1, prom2, prom3, prom4]);
+        this.trainedLabels = classifier.getLabelsWithCount();
       } catch (e) {
         console.error(e);
       }
-      // this.timer = window.setTimeout(this.handleImage.bind(this), 500);
-      this.timer = requestAnimationFrame(this.handleImage.bind(this));
+      this.timer = window.setTimeout(this.handleImage.bind(this), 300);
+      // this.timer = requestAnimationFrame(this.handleImage.bind(this));
     }
   }
 }
@@ -145,5 +187,8 @@ div.image-train-card {
 }
 .torch-btn {
   font-size: 30px;
+}
+div.left {
+  text-align: left;
 }
 </style>

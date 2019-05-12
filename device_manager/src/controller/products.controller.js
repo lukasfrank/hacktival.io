@@ -49,7 +49,7 @@ const updateProducts = (newProducts) => {
 
 const getProducts = () => {
     refreshProducts();
-    return productsDB;
+    return Object.values(productsDB);
 };
 
 module.exports = {

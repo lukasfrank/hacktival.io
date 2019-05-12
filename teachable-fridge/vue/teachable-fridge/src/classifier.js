@@ -26,7 +26,7 @@ const TOPK = 10;
 let knn = null;
 let mobilenet = null;
 
-const labels = [];
+let labels = [];
 
 async function start() {
   if (!await mobilenet) {
@@ -104,13 +104,20 @@ function getLabelsWithCount() {
 
 
 function downloadClassifier() {
-  const state = knn.getClassifierDataset();
-  const data = "text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
-  const link = document.createElement('a');
-  link.href = "data:' + data + '";
-  link.download = "model.json";
-  link.text = "dowload";
-  document.body.append(link);
+  const state = {
+    classifier: knn.getClassifierDataset(),
+    labels,
+  }
+  var dataStr = "data:text/json;charset=utf-8," + encodeURIComponent(JSON.stringify(state));
+  var dlAnchorElem = document.createElement('a');
+  dlAnchorElem.setAttribute("href", dataStr);
+  dlAnchorElem.setAttribute("download", "model.json");
+  dlAnchorElem.click();
+}
+
+function importClassifier(state) {
+  labels = state.labels;
+  knn.setClassifierDataset(state.classifier);
 }
 
 export {

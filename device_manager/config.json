@@ -2,16 +2,16 @@
   "devices": [
     {
       "id": 1,
-      "name": "PhoneDennis",
+      "name": "Fridge1",
       "location": "Fridge1",
       "url": "http://192.168.172.97:8080"
     },
     {
-	          "id": 2,
-		        "name": "PhoneDennis2",
-			      "location": "Fridge2",
-			            "url": "http://192.168.173.212:8080"
-				        }
+      "id": 2,
+      "name": "Fridge2",
+      "location": "Fridge2",
+            "url": "http://192.168.173.212:8080"
+          }
 
   ]
 }

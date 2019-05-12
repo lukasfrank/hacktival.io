@@ -34,7 +34,9 @@
           <v-flex xs1 pa-3 />  
           <v-flex xs2 pa-3>
             <v-card class="text-xs-center">
-              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel1 | filterLabel }}</h3></v-card-title>
+              <v-card-title primary-title>
+                <h3 class="headline ml-3">{{ clsLabel1 | filterLabel }}: {{freshState(clsLabel1)}}</h3>
+              </v-card-title>
               <img class="image-crop" :src="imageCrop1" ref="img1" />
               <br>
               <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label1"/><v-btn v-on:mousedown="train = 1" v-on:mouseup="resetTrain" :disabled="label1 == ''">🔬 Train</v-btn>
@@ -42,7 +44,8 @@
           </v-flex>
           <v-flex xs2 pa-3>
             <v-card>
-              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel2 | filterLabel }}</h3></v-card-title>
+              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel2 | filterLabel }}: {{freshState(clsLabel2)}}</h3>
+              </v-card-title>
               <img class="image-crop" :src="imageCrop2" ref="img2" />
               <br>
               <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label2"/><v-btn v-on:mousedown="train = 2" v-on:mouseup="resetTrain" :disabled="label2 == ''">🔬 Train</v-btn>
@@ -50,7 +53,8 @@
           </v-flex>
           <v-flex xs2 pa-3>
             <v-card>
-              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel3 | filterLabel }}</h3></v-card-title>
+              <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel3 | filterLabel }}: {{freshState(clsLabel3)}}</h3>
+              </v-card-title>
               <img class="image-crop" :src="imageCrop3" ref="img3" />
               <br>
               <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label3"/><v-btn v-on:mousedown="train = 3" v-on:mouseup="resetTrain" :disabled="label3 == ''">🔬 Train</v-btn>
@@ -58,7 +62,8 @@
           </v-flex>
         <v-flex xs2 pa-3>
           <v-card>
-            <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel4 | filterLabel }}</h3></v-card-title>
+            <v-card-title primary-title><h3 class="headline ml-3">{{ clsLabel4 | filterLabel }}: {{freshState(clsLabel4)}}</h3>
+            </v-card-title>
             <img class="image-crop" :src="imageCrop4" ref="img4" />
             <br>
               <v-combobox hide-no-data :items="labelNames" label="New Class" v-model="label4"/><v-btn v-on:mousedown="train = 4" v-on:mouseup="resetTrain" :disabled="label4 == ''">🔬 Train</v-btn>
@@ -122,6 +127,7 @@ export default {
     trainedLabels: [],
     devices: [],
     fridgeSrc: '',
+    productState: {},
   }),
   created: async function() {
     this.getDevices();
@@ -137,6 +143,7 @@ export default {
     this.$refs.fridgeImage.onload = this.imageLoaded;
 
     this.$refs.fileUpload.addEventListener('change', this.uploadModel, false);
+    this.syncProducts();
   },
   computed: {
     sortedLabels: function() {
@@ -147,8 +154,42 @@ export default {
     }
   },
   methods: {
+    freshState: function(label) {
+      if (this.productState[label]) {
+        const start = this.productState[label].date;
+        var date = new Date(start*1);
+        const now = Date.now();
+        const difference = now - date;
+        const dateDiff = new Date(difference);
+        return `${dateDiff.getUTCHours()} h ${dateDiff.getUTCMinutes()} m ${dateDiff.getUTCSeconds()} s`;
+      }
+      return '';
+    },
     resetTrain: function() {
       this.train = -1;
+    },
+    setProducts: function() {
+      const products = [this.clsLabel1, this.clsLabel2, this.clsLabel3, this.clsLabel4];
+      fetch('http://localhost:3000/products', {
+        method: 'POST', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+          products,
+        }),
+      });
+    },
+    getProducts: async function() {
+      const response = await fetch('http://localhost:3000/products', {
+        method: 'GET', // *GET, POST, PUT, DELETE, etc.
+        headers: {
+          'Content-Type': 'application/json',
+        }
+      });
+
+      const products = await response.json();
+      this.productState = _.mapKeys(products, "name");
     },
     setLight: function(status) {
       fetch('http://localhost:3000/devices', {
@@ -196,6 +237,11 @@ export default {
       }
       this.timer = window.setTimeout(this.handleImage.bind(this), 300);
       // this.timer = requestAnimationFrame(this.handleImage.bind(this));
+    },
+    syncProducts: async function() {
+      await this.setProducts();
+      await this.getProducts();
+      this.timer2 = window.setTimeout(this.syncProducts.bind(this), 500);
     },
     downloadModel: function() {
       classifier.downloadClassifier();

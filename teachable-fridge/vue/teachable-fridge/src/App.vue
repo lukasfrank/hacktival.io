@@ -77,7 +77,7 @@
               <b>{{ item.label }}</b>: {{ item.count }}
               </li>
             </ul>
-            <v-btn v-on:click="saveModel">Save model</v-btn>
+            <v-btn v-on:click="saveModel" disabled>Save model</v-btn>
             <v-btn v-on:click="restoreModel">Restore model</v-btn>
             <v-btn v-on:click="downloadModel">Dowload model</v-btn>
             <br>
@@ -157,12 +157,10 @@ export default {
   methods: {
     freshState: function(label) {
       if (this.productState[label]) {
-        const start = this.productState[label].date;
+        const start = this.productState[label].first_seen;
         var date = new Date(start*1);
         const now = Date.now();
         const difference = now - date;
-        console.log(difference);
-
         if (difference > SPOILED_AFTER) {
           return "bad";
         } else {
